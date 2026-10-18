@@ -1,0 +1,5 @@
+# Copy to data/bullets.yaml and replace with your own resume lines. data/bullets.yaml is gitignored.
+- id: job-01
+  source: Software Engineering Intern, Example Corp (2026)
+  text: "Built a Python service that ingests 2M events a day"
+  verified: true

@@ -1,0 +1,8 @@
+# Profile for the fictional sample resume.
+graduation: "2028-05"
+degree_level: BS
+fields: [Computer Science]
+willing_locations: [San Francisco, Sunnyvale, Seattle, New York, Remote]
+open_to_relocation: true
+needs_sponsorship: false
+next_program: null

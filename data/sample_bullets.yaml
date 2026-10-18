@@ -1,0 +1,43 @@
+# The public "Sample resume": a fictional student. Every line is invented, so the
+# demo reveals nothing about a real person. Mixed on purpose: some lines prove the
+# sample posting's qualifications, some come close, and some skills are missing.
+- id: s-01
+  source: Software Engineering Intern, Northwind Logistics (2026)
+  text: "Built a Python service that geocodes 40k delivery addresses a day and caches results in Redis"
+  verified: true
+- id: s-02
+  source: Software Engineering Intern, Northwind Logistics (2026)
+  text: "Deployed the address service to Google Cloud Run with a GitHub Actions pipeline that tests every merge"
+  verified: true
+- id: s-03
+  source: Software Engineering Intern, Northwind Logistics (2026)
+  text: "Added request tracing and latency dashboards that cut time to diagnose slow routes from hours to minutes"
+  verified: true
+- id: s-04
+  source: Research Assistant, State University NLP Lab (2025-present)
+  text: "Indexed 120k course forum posts with sentence embeddings in a FAISS vector index for semantic search"
+  verified: true
+- id: s-05
+  source: Research Assistant, State University NLP Lab (2025-present)
+  text: "Wrote an evaluation script that scores chatbot answers against 300 hand-labeled questions"
+  verified: true
+- id: s-06
+  source: Research Assistant, State University NLP Lab (2025-present)
+  text: "Fine-tuned a small BERT model in PyTorch to tag question topics, reaching 87% accuracy"
+  verified: true
+- id: s-07
+  source: Teaching Assistant, Data Structures (2025)
+  text: "Led weekly sections for 35 students and wrote autograder tests in Java"
+  verified: true
+- id: s-08
+  source: Campus Hackathon project (2025)
+  text: "Built a React and TypeScript app that suggests study groups, used by 200 students in its first week"
+  verified: true
+- id: s-09
+  source: Campus Hackathon project (2025)
+  text: "Called a single LLM API to summarize each study group's shared notes"
+  verified: true
+- id: s-10
+  source: Course project, Databases (2024)
+  text: "Designed a Postgres schema and indexes for a course-registration app with 50k records"
+  verified: true

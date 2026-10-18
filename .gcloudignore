@@ -1,0 +1,23 @@
+# Only what the server needs goes into the Cloud Run build.
+.gcloudignore
+.git/
+.gitignore
+.venv/
+venv/
+.env
+.lancedb/
+__pycache__/
+.pytest_cache/
+eval/
+rl/
+runs/
+tests/
+scripts/
+README.md
+requirements-dev.txt
+deploy.sh
+# Your resume and profile live in Firestore, not in the app build.
+data/bullets.yaml
+data/profile.yaml
+DEPLOY.md
+.env.example

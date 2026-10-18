@@ -1,0 +1,8 @@
+# GPU machine only (Colab A100 or a lab GPU). Not needed for the web app.
+torch
+transformers
+datasets
+peft
+trl>=1.16
+accelerate
+google-genai  # only for the Gemini baseline in evaluate.py

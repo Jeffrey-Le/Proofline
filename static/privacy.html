@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy · Proofline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+<style>
+:root { --paper: #f4f6f8; --ink: #18202b; --ink-2: #556070; --ink-3: #8a94a3; --rule: #dde2e8; --accent: #33449a; }
+@media (prefers-color-scheme: dark) { :root { --paper: #0f1318; --ink: #e4e9f0; --ink-2: #a3aebc; --ink-3: #6f7a89; --rule: #2a313b; --accent: #a3b3ff; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.65 "Public Sans", system-ui, sans-serif; }
+.top { border-bottom: 1px solid var(--rule); }
+.top a { display: block; max-width: 720px; margin: 0 auto; padding: 12px 24px; font: 600 1.25rem "Source Serif 4", Georgia, serif; text-decoration: none; color: inherit; }
+main { max-width: 720px; margin: 0 auto; padding: 40px 24px 72px; }
+h1 { font: 600 2.2rem/1.15 "Source Serif 4", Georgia, serif; margin: 0 0 8px; }
+.updated { color: var(--ink-3); margin: 0 0 32px; font-size: .92rem; }
+h2 { font-size: 1.05rem; margin: 32px 0 6px; }
+p, li { color: var(--ink-2); }
+ul { padding-left: 1.2em; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header class="top"><a href="/">Proofline</a></header>
+<main>
+  <h1>Privacy</h1>
+  <p class="updated">Last updated October 16, 2026</p>
+
+  <p>Proofline needs your resume to check it against job postings. This page explains what we keep, for how long, and who else handles it.</p>
+
+  <h2>What we keep</h2>
+  <ul>
+    <li>The bullet lines we read from your resume, and the answers you give about your degree, graduation date, locations and sponsorship.</li>
+    <li>They're stored under a random ID, not your name, and deleted automatically 24 hours after you add them. "Delete now" removes them immediately.</li>
+  </ul>
+
+  <h2>What we don't keep</h2>
+  <ul>
+    <li>The full text of your resume, including your name, email, phone number and address.</li>
+    <li>The job postings you check.</li>
+    <li>Your results. They're shown to you and not saved.</li>
+  </ul>
+
+  <h2>Logs</h2>
+  <p>For each check we log how long it took, how many steps it ran and what it cost us. Logs never contain resume or posting text. To prevent abuse, your IP address is held in memory for up to an hour to apply the hourly limit, and is not written to storage.</p>
+
+  <h2>Who processes your text</h2>
+  <p>Proofline runs on Google Cloud. Your resume and postings are sent to Google's Gemini API to be read, using the paid service; see <a href="https://ai.google.dev/terms">Google's Gemini API terms</a> for how Google handles that data. We don't use your resume to train any model, and we never sell or share it.</p>
+
+  <h2>In your browser</h2>
+  <p>The page remembers your resume's random ID and its lines in this browser tab only, so you can check several postings in a row. Closing the tab clears it.</p>
+
+  <h2>Questions or deletion requests</h2>
+  <p>Email <a href="mailto:jeffreyvole@gmail.com">jeffreyvole@gmail.com</a>.</p>
+</main>
+</body>
+</html>

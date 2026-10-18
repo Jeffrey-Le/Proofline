@@ -1,0 +1,18 @@
+.lancedb/
+eval/runs/
+eval/postings/
+.env
+__pycache__/
+.pytest_cache/
+eval/real_labels.jsonl
+rl/results/*_real.json
+runs/
+.venv/
+venv/
+# personal data: never commit
+data/bullets.yaml
+data/profile.yaml
+
+# local clutter
+.DS_Store
+*.zip

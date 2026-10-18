@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proofline</title>
+<meta name="description" content="Check a job posting before you apply: eligibility, qualifications matched to real resume lines, and every claim verified.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f4f6f8; --sheet: #ffffff; --ink: #18202b; --ink-2: #556070; --ink-3: #8a94a3;
+  --rule: #dde2e8; --rule-2: #eef1f4;
+  --accent: #33449a; --accent-bg: #e8ebf7;
+  --pass: #2a7246; --pass-bg: #dcefe2;
+  --warn: #8a5a00; --warn-bg: #fbeabf;
+  --block: #b0261e; --block-bg: #f9d7d2;
+  --serif: "Source Serif 4", Georgia, serif;
+  --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0f1318; --sheet: #161b22; --ink: #e4e9f0; --ink-2: #a3aebc; --ink-3: #6f7a89;
+    --rule: #2a313b; --rule-2: #1d232b; --accent: #a3b3ff; --accent-bg: #222a4a;
+    --pass: #82d29f; --pass-bg: #1c3526; --warn: #f0c062; --warn-bg: #3a2e12;
+    --block: #ff9389; --block-bg: #45201c;
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 var(--sans); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+a { color: inherit; }
+
+.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(8px); border-bottom: 1px solid var(--rule); }
+.top-in { max-width: 1120px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 24px; }
+.mark { font: 600 1.25rem var(--serif); letter-spacing: -.01em; text-decoration: none; }
+.top nav { margin-left: auto; display: flex; gap: 20px; font-size: .92rem; color: var(--ink-2); }
+.top nav a { text-decoration: none; } .top nav a:hover { color: var(--ink); text-decoration: underline; }
+main { max-width: 1120px; margin: 0 auto; padding: 40px 24px 72px; }
+@media (max-width: 720px) { main { padding: 28px 16px 56px; } .top-in { padding: 10px 16px; } }
+
+.intro { max-width: 60ch; margin-bottom: 32px; }
+h1 { font: 600 2.5rem/1.1 var(--serif); letter-spacing: -.015em; margin: 0 0 12px; }
+@media (max-width: 720px) { h1 { font-size: 1.95rem; } }
+.intro p { margin: 0; color: var(--ink-2); font-size: 1.08rem; }
+
+.step { display: grid; grid-template-columns: 2rem 1fr; gap: 0 14px; margin-bottom: 28px; }
+.num { width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center;
+  font-weight: 600; font-size: .9rem; background: var(--ink); color: var(--sheet); }
+.step h2 { font: 600 1.05rem/2rem var(--sans); margin: 0 0 10px; }
+.step-body { grid-column: 2; min-width: 0; }
+@media (max-width: 560px) { .step { grid-template-columns: 1fr; } .num { display: none; } .step-body { grid-column: 1; } }
+
+.seg { display: inline-flex; padding: 3px; gap: 3px; background: var(--rule-2); border-radius: var(--r); }
+.seg button { border: 0; background: none; padding: 8px 16px; border-radius: 6px; font-weight: 500; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--sheet); color: var(--ink); box-shadow: 0 1px 2px rgba(20,30,50,.12); }
+.resume-note { margin: 10px 0 0; color: var(--ink-2); font-size: .93rem; }
+.resume-note strong { color: var(--ink); font-weight: 600; }
+.linkish { border: 0; background: none; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+
+.panel { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); }
+.mine { margin-top: 14px; padding: 20px; }
+.mine-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; }
+@media (max-width: 860px) { .mine-grid { grid-template-columns: 1fr; } }
+label.f { display: block; font-size: .9rem; font-weight: 500; margin: 0 0 14px; }
+label.f small { display: block; font-weight: 400; color: var(--ink-3); margin-top: 3px; }
+.input { display: block; width: 100%; margin-top: 5px; padding: 9px 11px; font: 400 .95rem var(--sans);
+  color: var(--ink); background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; }
+textarea.input { min-height: 290px; resize: vertical; font: .95rem/1.55 var(--serif); }
+.input:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 2px 0 14px; font-size: .92rem; }
+.checks input { margin-right: 7px; accent-color: var(--accent); }
+details.next { margin: 0 0 16px; font-size: .92rem; }
+details.next summary, #savedBox summary { cursor: pointer; color: var(--ink-2); }
+details.next .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+.privacy { font-size: .85rem; color: var(--ink-3); margin: 16px 0 0; }
+.saved-lines { margin: 10px 0 0; padding-left: 1.3em; font: .9rem/1.5 var(--serif); color: var(--ink-2); max-height: 220px; overflow: auto; }
+
+.posting { overflow: hidden; }
+.posting textarea { display: block; width: 100%; min-height: 300px; border: 0; resize: vertical; padding: 18px 20px;
+  background: transparent; color: var(--ink); font: 1rem/1.65 var(--serif); }
+.posting textarea:focus-visible { outline: none; }
+.posting:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+.bar { display: flex; align-items: center; gap: 16px; padding: 10px 12px 10px 20px; border-top: 1px solid var(--rule-2); flex-wrap: wrap; }
+.bar .hint { color: var(--ink-3); font-size: .88rem; margin-right: auto; }
+.primary { border: 0; background: var(--ink); color: var(--sheet); font-weight: 600; padding: 10px 20px; border-radius: 6px; }
+.primary:hover { background: color-mix(in srgb, var(--ink) 88%, var(--accent)); }
+.primary:disabled { opacity: .55; cursor: progress; }
+.ghost { border: 1px solid var(--rule); background: var(--sheet); padding: 7px 12px; border-radius: 6px; font-size: .9rem; white-space: nowrap; }
+.ghost:hover { border-color: var(--ink-3); }
+kbd { font: .8rem var(--sans); border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; }
+
+.progress { padding: 18px 20px; margin-bottom: 24px; }
+.progress ol { list-style: none; margin: 0; padding: 0; }
+.progress li { display: grid; grid-template-columns: 1.4rem 1fr; gap: 0 10px; padding: 6px 0; color: var(--ink-3); }
+.progress li.active, .progress li.done { color: var(--ink); }
+.progress .dot { position: relative; width: .85rem; height: .85rem; border-radius: 50%; border: 2px solid var(--rule); margin-top: .35rem; }
+.progress li.active .dot { border-color: var(--accent); border-top-color: transparent; animation: spin .8s linear infinite; }
+.progress li.done .dot { border: 0; background: var(--pass); }
+.progress li.done .dot::after { content: ""; position: absolute; left: .28rem; top: .14rem; width: .2rem; height: .42rem;
+  border: solid var(--sheet); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.progress .sub { grid-column: 2; font-size: .88rem; color: var(--ink-2); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.err { border: 1px solid var(--block); background: var(--block-bg); border-radius: var(--r); padding: 12px 16px; margin: 0 0 24px; }
+
+#results, #status { scroll-margin-top: 80px; }
+.verdict { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; padding: 20px 24px; margin-bottom: 20px;
+  border-left: 6px solid var(--ink-3); }
+.verdict.no { border-left-color: var(--block); } .verdict.check { border-left-color: var(--warn); } .verdict.yes { border-left-color: var(--pass); }
+.verdict .who { flex-basis: 100%; color: var(--ink-2); font-size: .93rem; }
+.verdict .line { font: 600 1.85rem/1.15 var(--serif); margin: 0; }
+.verdict.no .line { color: var(--block); } .verdict.check .line { color: var(--warn); } .verdict.yes .line { color: var(--pass); }
+.verdict .sub { color: var(--ink-2); }
+.verdict .caveat { flex-basis: 100%; font-size: .86rem; color: var(--ink-3); margin: 4px 0 0; }
+
+.split { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+.doc-wrap { position: sticky; top: 72px; }
+@media (max-width: 900px) { .doc-wrap { position: static; } }
+.doc-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px;
+  padding: 10px 16px; border-bottom: 1px solid var(--rule-2); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .8rem; color: var(--ink-2); }
+.legend span::before { content: ""; display: inline-block; width: .75em; height: .75em; margin-right: 5px; border-radius: 2px; vertical-align: -1px; }
+.l-block::before { background: var(--block); } .l-warn::before { background: var(--warn); }
+.l-pass::before { background: var(--pass); } .legend .l-skill::before { background: var(--accent); height: 3px; vertical-align: 2px; }
+.doc { padding: 18px 22px 24px; font: .98rem/1.75 var(--serif); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 72vh; overflow: auto; }
+mark { color: inherit; border-radius: 2px; padding: 0 1px; scroll-margin: 90px; transition: box-shadow .2s; }
+mark.blocker { background: var(--block-bg); box-shadow: inset 0 -2px 0 var(--block); }
+mark.warning, mark.unknown { background: var(--warn-bg); box-shadow: inset 0 -2px 0 var(--warn); }
+mark.pass { background: var(--pass-bg); }
+mark.skill { background: none; text-decoration: underline 2px var(--accent); text-underline-offset: 3px; }
+mark.lit { box-shadow: 0 0 0 3px var(--accent); }
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--rule); margin-bottom: 4px; overflow-x: auto; }
+.tabs button { border: 0; background: none; padding: 10px 14px; font-weight: 500; color: var(--ink-2); white-space: nowrap;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.tabs .count { color: var(--ink-3); font-weight: 400; margin-left: 5px; }
+h3 { font: 600 .85rem var(--sans); color: var(--ink-2); margin: 18px 0 4px; }
+
+.finding { display: grid; grid-template-columns: 1.4rem 1fr; gap: 2px 8px; text-align: left; border: 0;
+  background: none; padding: 10px 8px; margin: 0 -8px; width: calc(100% + 16px); border-radius: 6px; }
+.finding:hover { background: var(--rule-2); }
+.mk { font-weight: 700; line-height: 1.55; }
+.st-blocker .mk { color: var(--block); } .st-warning .mk, .st-unknown .mk { color: var(--warn); } .st-pass .mk { color: var(--pass); }
+.finding .reason { font-weight: 500; }
+.finding .quote { grid-column: 2; font: italic .93rem/1.5 var(--serif); color: var(--ink-2); }
+.ungrounded { font: .78rem var(--sans); color: var(--warn); }
+
+.qual { display: grid; grid-template-columns: 1.4rem 1fr; gap: 2px 8px; padding: 14px 0; border-top: 1px solid var(--rule-2); }
+.qual:first-of-type { border-top: 0; }
+.q-supported .mk { color: var(--pass); } .q-partial .mk { color: var(--warn); } .q-none .mk { color: var(--ink-3); }
+.qt { font-weight: 500; }
+.kind { font-size: .78rem; color: var(--ink-3); margin-left: 6px; font-weight: 400; }
+.evidence { grid-column: 2; margin: 6px 0 0; padding-left: 12px; border-left: 3px solid var(--pass); font: .94rem/1.55 var(--serif); }
+.q-partial .evidence { border-left-color: var(--warn); }
+.evidence cite { display: block; font: .78rem var(--sans); color: var(--ink-3); margin-top: 3px; font-style: normal; }
+.note { grid-column: 2; font-size: .88rem; color: var(--ink-2); margin-top: 4px; }
+.rejected { grid-column: 2; font-size: .88rem; color: var(--block); margin-top: 4px; }
+
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 14px 0 18px; }
+.stats div { font-size: .8rem; color: var(--ink-2); }
+.stats b { display: block; font: 600 1.2rem var(--sans); color: var(--ink); font-variant-numeric: tabular-nums; }
+@media (max-width: 480px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.wf { display: grid; grid-template-columns: 8.5rem 1fr 4rem; gap: 7px 10px; align-items: center; font-size: .85rem; }
+.wf .nm { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wf .track { position: relative; height: 10px; background: var(--rule-2); border-radius: 3px; }
+.wf .bar { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: var(--ink-3); min-width: 2px; }
+.wf .bar.llm { background: var(--accent); }
+.wf .ms { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.searches { margin: 14px 0 0; font-size: .88rem; color: var(--ink-2); }
+
+.how { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--rule); }
+.how h2 { font: 600 1.4rem var(--serif); margin: 0 0 18px; }
+.how ol { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+@media (max-width: 860px) { .how ol { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .how ol { grid-template-columns: 1fr; } }
+.how li { counter-increment: s; font-size: .93rem; color: var(--ink-2); }
+.how li b { display: block; color: var(--ink); font-size: 1rem; margin-bottom: 4px; }
+.how li b::before { content: counter(s) ". "; color: var(--ink-3); }
+.site { border-top: 1px solid var(--rule); }
+.site-in { max-width: 1120px; margin: 0 auto; padding: 20px 24px 32px; display: flex; gap: 24px; justify-content: space-between;
+  flex-wrap: wrap; font-size: .86rem; color: var(--ink-3); }
+.privacy a, .site a { color: inherit; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="mark" href="/">Proofline</a>
+    <nav><a href="#how">How it works</a><a href="/privacy">Privacy</a></nav>
+  </div>
+</header>
+
+<main>
+  <div class="intro">
+    <h1>Check a job posting before you apply.</h1>
+    <p>See whether you're eligible, which qualifications your resume actually proves, and the exact line behind every claim.</p>
+  </div>
+
+  <section class="step" aria-labelledby="s1">
+    <span class="num" aria-hidden="true">1</span>
+    <h2 id="s1">Resume</h2>
+    <div class="step-body">
+      <div class="seg" role="group" aria-label="Whose resume">
+        <button type="button" id="modeMine" aria-pressed="true">Your resume</button>
+        <button type="button" id="modeSample" aria-pressed="false">Sample resume</button>
+        <button type="button" id="modeOwner" aria-pressed="false" hidden>Shared resume</button>
+      </div>
+      <p class="resume-note" id="resumeNote"></p>
+
+      <div class="panel mine" id="mine" hidden>
+        <form id="mineForm" class="mine-grid">
+          <label class="f">Resume text<small>Open your resume, select all, copy, and paste. Keep the bullet points.</small>
+            <textarea class="input" id="resume" required minlength="200" maxlength="15000"></textarea></label>
+          <div>
+            <div class="pair">
+              <label class="f">Graduation<input class="input" type="month" id="pGrad" required></label>
+              <label class="f">Degree<select class="input" id="pDegree"><option>BS</option><option>MS</option><option>PhD</option></select></label>
+            </div>
+            <label class="f">Field of study<input class="input" type="text" id="pFields" placeholder="Computer Science, Mathematics" required></label>
+            <label class="f">Where you'd work<input class="input" type="text" id="pLocs" placeholder="San Francisco, Seattle, Remote" required>
+              <small>Cities, states or Remote, separated by commas.</small></label>
+            <div class="checks">
+              <label><input type="checkbox" id="pReloc" checked>Open to relocating</label>
+              <label><input type="checkbox" id="pSponsor">Need visa sponsorship</label>
+            </div>
+            <details class="next">
+              <summary>Starting another degree after this one?</summary>
+              <div class="row">
+                <label class="f">Degree<select class="input" id="nLevel"><option value="">None</option><option>MS</option><option>PhD</option><option>BS</option></select></label>
+                <label class="f">Starts<input class="input" type="month" id="nStart"></label>
+                <label class="f">Status<select class="input" id="nStatus"><option value="applying">Applying</option><option value="admitted">Admitted</option><option value="enrolled">Enrolled</option></select></label>
+              </div>
+            </details>
+            <button class="primary" type="submit" id="saveBtn">Save resume</button>
+          </div>
+        </form>
+        <div id="savedBox" hidden></div>
+        <p class="privacy">We keep only the bullet lines from your resume and your answers above, never your contact details or the full text, and delete them automatically after 24 hours. <a href="/privacy">Privacy</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" aria-labelledby="s2">
+    <span class="num" aria-hidden="true">2</span>
+    <h2 id="s2">Job posting</h2>
+    <div class="step-body">
+      <div class="panel posting">
+        <textarea id="posting" aria-labelledby="s2" placeholder="Paste the whole posting, including minimum and preferred qualifications."></textarea>
+        <div class="bar">
+          <span class="hint"><button class="linkish" type="button" id="sampleBtn">Try a sample posting</button> · <kbd>⌘</kbd> <kbd>Enter</kbd> to run</span>
+          <button class="primary" id="runBtn" type="button">Check posting</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="status" aria-live="polite"></div>
+  <section id="results" hidden></section>
+
+  <section class="how" id="how">
+    <h2>How it works</h2>
+    <ol>
+      <li><b>Add your resume</b>Paste it once with a few facts like your graduation date. We keep only its bullet lines, for 24 hours.</li>
+      <li><b>Paste a posting</b>Proofline finds who can apply, from graduation dates and enrollment to location and sponsorship, and every qualification it asks for.</li>
+      <li><b>See where you stand</b>Each requirement is checked against your profile, and each qualification is matched to the resume line that shows it.</li>
+      <li><b>Check the evidence</b>A match only counts if the quoted line is really on your resume. Click any requirement to see it highlighted in the posting.</li>
+    </ol>
+  </section>
+</main>
+<footer class="site">
+  <div class="site-in"><span>Proofline gives a second opinion, not a final answer. Read the highlighted lines before deciding not to apply.</span><a href="/privacy">Privacy</a></div>
+</footer>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const posting = $("posting"), results = $("results"), status = $("status"), runBtn = $("runBtn");
+  const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  const MARKS = { blocker: "✕", warning: "?", unknown: "?", pass: "✓" };
+  const QMARKS = { supported: "✓", partial: "≈", none: "–" };
+  const SAMPLE = `Applied AI Engineering Intern, BS/MS, Summer 2027
+Example Cloud Co. — Sunnyvale, CA or New York, NY (in office)
+
+About the role
+Work with customers to take generative AI prototypes to production on our cloud platform. The internship runs 12 weeks during summer 2027.
+
+Minimum qualifications:
+Currently enrolled in a Bachelor's or Master's program in Computer Science, Engineering, or a related technical field.
+Programming experience in Python or a similar language.
+Experience deploying AI applications on a public cloud platform.
+Experience building retrieval-augmented generation pipelines with a vector database.
+
+Preferred qualifications:
+Returning to your degree program for at least one term after the internship.
+Experience with multi-agent frameworks such as ADK or LangGraph.
+Familiarity with LLM cost and latency metrics and request tracing.
+Must be authorized to work in the US; visa sponsorship is not available for this role.`;
+
+  let ownerNote = "", token = null, share = null, mode = "mine", sessionId = null, sessionExp = null, savedLines = [];
+  try {
+    const m = location.hash.match(/token=([^&]+)/);
+    if (m) { localStorage.setItem("proofline-token", m[1]); history.replaceState(null, "", location.pathname); }
+    const q = new URLSearchParams(location.search);
+    if (q.get("for")) { localStorage.setItem("proofline-share", q.get("for")); history.replaceState(null, "", location.pathname + "?resume=shared"); }
+    token = localStorage.getItem("proofline-token");
+    share = localStorage.getItem("proofline-share");
+    const s = JSON.parse(sessionStorage.getItem("proofline-session") || "null");
+    if (s && new Date(s.expires_at) > new Date()) { sessionId = s.session_id; sessionExp = s.expires_at; savedLines = s.lines || []; }
+  } catch (_) {}
+  const headers = () => Object.assign({ "content-type": "application/json" },
+    token ? { "x-api-token": token } : {}, share ? { "x-share-token": share } : {});
+
+  // Streams newline-delimited JSON: progress events, then {result} or {error}.
+  async function stream(url, body, onEvent) {
+    const res = await fetch(url, { method: "POST", headers: headers(), body: JSON.stringify(body) });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      const e = new Error(typeof d.detail === "string" ? d.detail : `Request failed (HTTP ${res.status}). Check the form and try again.`);
+      e.status = res.status; throw e;
+    }
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    let buf = "", result = null;
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!line) continue;
+        const ev = JSON.parse(line);
+        if (ev.error) { const e = new Error(ev.error); e.status = ev.status; throw e; }
+        if ("result" in ev) result = ev.result; else onEvent(ev);
+      }
+    }
+    if (!result) throw new Error("The connection closed before the check finished. Try again.");
+    return result;
+  }
+
+  function progressView() {
+    const box = el("div", "panel progress"), ol = el("ol");
+    box.append(ol); status.replaceChildren(box);
+    requestAnimationFrame(() => box.scrollIntoView({ block: "center" }));
+    let steps = []; const done = new Set();
+    const render = () => {
+      ol.replaceChildren();
+      let active = false;
+      for (const s of steps) {
+        const cls = done.has(s.id) ? "done" : active ? "" : (active = true, "active");
+        const li = el("li", cls);
+        li.append(el("span", "dot"), el("span", null, s.label));
+        for (const q of s.searches) { const sub = el("span", "sub", "Searched the resume for "); sub.append(el("q", null, q)); li.append(sub); }
+        ol.append(li);
+      }
+    };
+    return (ev) => {
+      if (ev.steps) { steps = ev.steps.map((s) => ({ ...s, searches: [] })); }
+      if (ev.done) done.add(ev.done);
+      if (ev.search) { const s = steps.find((x) => x.id === "matcher"); if (s) s.searches.push(ev.search); }
+      render();
+    };
+  }
+
+  function showError(msg) { status.replaceChildren(el("p", "err", msg)); }
+
+  // ---------- whose resume ----------
+  function setMode(m) {
+    mode = m;
+    for (const [id, v] of [["modeMine", "mine"], ["modeSample", "sample"], ["modeOwner", "owner"]])
+      $(id).setAttribute("aria-pressed", String(m === v));
+    $("mine").hidden = m !== "mine";
+    renderResumeNote();
+  }
+
+  function renderResumeNote() {
+    const note = $("resumeNote");
+    if (mode === "sample") {
+      note.textContent = "A made-up computer science student with some cloud and search experience, so you can try Proofline without adding your own resume.";
+      return;
+    }
+    if (mode === "owner") {
+      note.textContent = ownerNote;
+      return;
+    }
+    const saved = !!sessionId;
+    $("mineForm").hidden = saved; $("savedBox").hidden = !saved;
+    if (!saved) { note.textContent = "Paste your resume and a few facts about your degree. We delete them after 24 hours."; return; }
+    const exp = new Date(sessionExp).toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit" });
+    note.replaceChildren(el("strong", null, `Using your resume (${savedLines.length} lines).`), ` Deleted automatically ${exp}. `);
+    const del = el("button", "linkish", "Delete now"), redo = el("button", "linkish", "Replace");
+    del.type = redo.type = "button";
+    del.onclick = async () => {
+      try { await fetch("/session/" + sessionId, { method: "DELETE" }); } catch (_) {}
+      forget(); renderResumeNote(); status.replaceChildren(el("p", "resume-note", "Your resume was deleted."));
+    };
+    redo.onclick = () => { forget(); renderResumeNote(); };
+    note.append(del, " · ", redo);
+    const box = $("savedBox"); box.replaceChildren();
+    if (savedLines.length) {
+      const det = el("details"); det.append(el("summary", null, "Lines read from your resume. Only these are used, so add anything important as its own bullet."));
+      const ol = el("ol", "saved-lines"); savedLines.forEach((t) => ol.append(el("li", null, t))); det.append(ol); box.append(det);
+    }
+  }
+
+  function forget() {
+    sessionId = sessionExp = null; savedLines = [];
+    try { sessionStorage.removeItem("proofline-session"); } catch (_) {}
+  }
+
+  $("mineForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const list = (v) => v.split(",").map((x) => x.trim()).filter(Boolean);
+    const level = $("nLevel").value;
+    const profile = {
+      graduation: $("pGrad").value, degree_level: $("pDegree").value,
+      fields: list($("pFields").value), willing_locations: list($("pLocs").value),
+      open_to_relocation: $("pReloc").checked, needs_sponsorship: $("pSponsor").checked,
+      next_program: level && $("nStart").value ? { level, start: $("nStart").value, status: $("nStatus").value } : null,
+    };
+    const btn = $("saveBtn"); btn.disabled = true; btn.textContent = "Reading resume…";
+    try {
+      const out = await stream("/session/stream", { resume: $("resume").value, profile }, progressView());
+      sessionId = out.session_id; sessionExp = out.expires_at; savedLines = out.bullets.map((b) => b.text);
+      try { sessionStorage.setItem("proofline-session", JSON.stringify({ session_id: sessionId, expires_at: sessionExp, lines: savedLines })); } catch (_) {}
+      $("resume").value = ""; status.replaceChildren(); renderResumeNote();
+    } catch (err) { showError(err.message); }
+    finally { btn.disabled = false; btn.textContent = "Save resume"; }
+  });
+  $("modeOwner").onclick = () => setMode("owner");
+  $("modeSample").onclick = () => setMode("sample");
+  $("modeMine").onclick = () => setMode("mine");
+
+  // ---------- posting highlights ----------
+  const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  function locate(text, quote) {
+    const words = (quote || "").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').trim().replace(/[.;:,]+$/, "").split(/\s+/).filter(Boolean);
+    if (!words.length) return null;
+    const pat = words.map((w) => escRe(w).replace(/'/g, "['‘’]").replace(/"/g, '["“”]')).join("\\s+");
+    const m = new RegExp(pat, "i").exec(text);
+    return m ? [m.index, m.index + m[0].length] : null;
+  }
+  function annotate(doc, text, items) {
+    const ranges = [];
+    items.forEach((it, i) => { const r = locate(text, it.quote); it.markId = r ? "m" + i : null; if (r) ranges.push({ s: r[0], e: r[1], cls: it.cls, id: "m" + i }); });
+    ranges.sort((a, b) => a.s - b.s || (b.e - b.s) - (a.e - a.s));
+    let pos = 0;
+    for (const r of ranges) {
+      if (r.s < pos) continue;
+      doc.append(text.slice(pos, r.s));
+      const m = el("mark", r.cls, text.slice(r.s, r.e)); m.id = r.id; doc.append(m); pos = r.e;
+    }
+    doc.append(text.slice(pos));
+  }
+  function spotlight(id) {
+    const m = id && document.getElementById(id); if (!m) return;
+    document.querySelectorAll("mark.lit").forEach((x) => x.classList.remove("lit"));
+    m.classList.add("lit"); m.scrollIntoView({ behavior: reduce(), block: "center" });
+    setTimeout(() => m.classList.remove("lit"), 1800);
+  }
+
+  // ---------- results ----------
+  function verdict(r) {
+    const v = el("div", "panel verdict " + r.eligible);
+    const who = [r.title, r.company].filter(Boolean).join(", ");
+    if (who) v.append(el("span", "who", who));
+    const n = r.blockers.length, w = r.warnings.length;
+    v.append(el("p", "line", r.eligible === "no" ? `Not eligible: ${n} blocker${n > 1 ? "s" : ""}`
+      : r.eligible === "check" ? (w > 1 ? `Eligible if ${w} questions resolve` : "Eligible if one question resolves") : "Eligible to apply"));
+    const mins = r.fit.filter((f) => f.kind === "minimum");
+    if (mins.length) {
+      const sup = mins.filter((f) => f.final === "supported").length, part = mins.filter((f) => f.final === "partial").length;
+      v.append(el("span", "sub", `Resume proves ${sup} of ${mins.length} minimum qualifications${part ? `, ${part} partly` : ""}.`));
+    }
+    (r.notes || []).forEach((n) => v.append(el("p", "caveat", n)));
+    v.append(el("p", "caveat", "Double-check the highlighted lines before deciding not to apply."));
+    return v;
+  }
+
+  function findingRow(f, items) {
+    const it = { quote: f.source_quote, cls: f.status }; items.push(it);
+    const b = el("button", "finding st-" + f.status); b.type = "button";
+    b.append(el("span", "mk", MARKS[f.status] || "?"), el("span", "reason", f.reason));
+    const q = el("span", "quote", `“${f.source_quote}”`);
+    if (!f.quote_grounded) q.append(" ", el("span", "ungrounded", "not found in posting, check by hand"));
+    b.append(q); b.onclick = () => spotlight(it.markId);
+    return b;
+  }
+
+  function eligibilityPanel(r, items) {
+    const p = el("div");
+    const groups = [["Blockers", r.blockers], ["Open questions", r.warnings], ["Requirements met", r.eligibility.filter((f) => f.status === "pass")]];
+    for (const [title, list] of groups) {
+      if (!list.length) continue;
+      p.append(el("h3", null, title));
+      list.forEach((f) => p.append(findingRow(f, items)));
+    }
+    if (!r.eligibility.length) p.append(el("p", "note", "The posting doesn't state any eligibility requirements."));
+    return p;
+  }
+
+  function fitPanel(r, items) {
+    const p = el("div");
+    for (const f of r.fit) {
+      items.push({ quote: f.source_quote, cls: "skill" });
+      const row = el("div", "qual q-" + f.final);
+      const t = el("span", "qt", f.qualification); t.append(el("span", "kind", f.kind));
+      row.append(el("span", "mk", QMARKS[f.final]), t);
+      if (f.final !== "none" && f.evidence) {
+        const ev = el("blockquote", "evidence", `“${f.evidence}”`);
+        ev.append(el("cite", null, `Resume line ${f.bullet_id}${f.final === "partial" ? ", partial match" : ""}`));
+        row.append(ev);
+        if (f.note) row.append(el("div", "note", f.note));
+      } else if (f.rejected_by) {
+        const rj = el("div", "rejected");
+        rj.append(el("b", null, "Not counted: "), f.note);
+        row.append(rj);
+      } else row.append(el("div", "note", "Not shown on the resume."));
+      p.append(row);
+    }
+    return p;
+  }
+
+  function runPanel(t) {
+    const p = el("div");
+    const fmt = (ms) => ms >= 1000 ? (ms / 1000).toFixed(1) + " s" : Math.round(ms) + " ms";
+    const stats = el("div", "stats");
+    [["Total time", fmt(t.total_latency_ms)], ["Model calls", t.llm_calls], ["Tokens", (t.input_tokens + t.output_tokens).toLocaleString()],
+     ["Cost", t.cost_usd == null ? "Not tracked" : "$" + t.cost_usd.toFixed(4)]]
+      .forEach(([k, v]) => { const d = el("div", null, k); d.prepend(el("b", null, String(v))); stats.append(d); });
+    p.append(stats);
+    const total = Math.max(1, t.total_latency_ms), wf = el("div", "wf");
+    for (const sp of t.spans) {
+      const track = el("div", "track"), bar = el("div", "bar" + (sp.kind === "llm" ? " llm" : ""));
+      bar.style.left = (100 * (sp.start_ms || 0) / total) + "%"; bar.style.width = (100 * (sp.latency_ms || 0) / total) + "%";
+      bar.title = `${sp.name}: ${fmt(sp.latency_ms || 0)}` + (sp.input_tokens ? `, ${sp.input_tokens} in / ${sp.output_tokens || 0} out tokens` : "");
+      track.append(bar);
+      wf.append(el("span", "nm", sp.name.replace(/_/g, " ")), track, el("span", "ms", fmt(sp.latency_ms || 0)));
+    }
+    p.append(wf);
+    if (t.n_searches) p.append(el("p", "searches", `The matcher searched the resume ${t.n_searches} more time${t.n_searches > 1 ? "s" : ""} on its own.`));
+    return p;
+  }
+
+  function render(data, text) {
+    const r = data.report, items = [];
+    const panels = [["Eligibility", r.eligibility.length, eligibilityPanel(r, items)],
+                    ["Qualifications", r.fit.length, fitPanel(r, items)],
+                    ...(data.trace ? [["How it ran", null, runPanel(data.trace)]] : [])];
+    const tabs = el("div", "tabs"); tabs.setAttribute("role", "tablist");
+    const holder = el("div"); holder.setAttribute("role", "tabpanel");
+    const select = (i) => { [...tabs.children].forEach((b, j) => b.setAttribute("aria-selected", String(i === j))); holder.replaceChildren(panels[i][2]); };
+    panels.forEach(([name, n], i) => {
+      const b = el("button", null, name); b.type = "button"; b.setAttribute("role", "tab");
+      if (n != null) b.append(el("span", "count", String(n)));
+      b.onclick = () => select(i);
+      b.onkeydown = (e) => {
+        if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        const k = (i + (e.key === "ArrowRight" ? 1 : panels.length - 1)) % panels.length; select(k); tabs.children[k].focus();
+      };
+      tabs.append(b);
+    });
+    select(r.blockers.length || r.warnings.length ? 0 : 1);
+
+    const docPanel = el("div", "panel"), head = el("div", "doc-head"), legend = el("div", "legend");
+    [["l-block", "Blocker"], ["l-warn", "Open question"], ["l-pass", "Meets it"], ["l-skill", "Skill"]].forEach(([c, l]) => legend.append(el("span", c, l)));
+    const edit = el("button", "ghost", "Edit posting"); edit.type = "button";
+    edit.onclick = () => { results.hidden = true; posting.scrollIntoView({ behavior: reduce(), block: "center" }); posting.focus(); };
+    head.append(legend, edit);
+    const doc = el("div", "doc"); annotate(doc, text, items);
+    docPanel.append(head, doc);
+    const wrap = el("div", "doc-wrap"); wrap.append(docPanel);
+    const right = el("div"); right.append(tabs, holder);
+    const split = el("div", "split"); split.append(wrap, right);
+    results.replaceChildren(verdict(r), split); results.hidden = false;
+    status.replaceChildren();
+    results.scrollIntoView({ behavior: reduce(), block: "start" });
+  }
+
+  async function run() {
+    const text = posting.value.trim();
+    if (mode === "mine" && !sessionId) { showError("Add your resume first, or switch to the sample resume to try it out."); $("resume").focus(); return; }
+    if (text.length < 50) { showError("Paste the full posting first, including its qualifications."); posting.focus(); return; }
+    runBtn.disabled = true; runBtn.textContent = "Checking…"; results.hidden = true;
+    try {
+      const data = await stream("/check/stream", { posting: text, session_id: mode === "mine" ? sessionId : mode }, progressView());
+      render(data, text);
+    } catch (e) {
+      if (e.status === 410) { forget(); renderResumeNote(); }
+      showError(e.message || "The check failed. Try again.");
+    } finally { runBtn.disabled = false; runBtn.textContent = "Check posting"; }
+  }
+
+  runBtn.onclick = run;
+  $("sampleBtn").onclick = () => { posting.value = SAMPLE; posting.focus(); };
+  posting.addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") run(); });
+  const want = new URLSearchParams(location.search);
+  setMode(want.has("sample") ? "sample" : "mine");
+  if (token || share) {
+    fetch("/access", { headers: headers() }).then((r) => r.json()).then((a) => {
+      if (!a.owner_resume) { try { localStorage.removeItem("proofline-share"); } catch (_) {} share = null; return; }
+      $("modeOwner").textContent = a.label; ownerNote = a.note;
+      $("modeOwner").hidden = false;
+      if (want.get("resume") === "shared") setMode("owner");
+    }).catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>

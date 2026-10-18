@@ -1,0 +1,5 @@
+-r requirements.txt
+lancedb==0.40.0
+pytest
+httpx
+python-dotenv
