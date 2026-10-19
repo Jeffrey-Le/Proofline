@@ -31,7 +31,7 @@ so no hallucinated requirement can ever hard-block you.
 ```bash
 python -m venv .venv && . .venv/bin/activate && pip install -r requirements-dev.txt
 export GEMINI_API_KEY=...            # paid-tier key once visitors can paste resumes (see below)
-python -m pytest -q                  # 37 tests, no API calls (fake LLM)
+python -m pytest -q                  # 42 tests, no API calls (fake LLM)
 cp data/profile.example.yaml data/profile.yaml && cp data/bullets.example.yaml data/bullets.yaml  # then edit; both are gitignored
 python -m scripts.load_bullets       # your resume (private) into local LanceDB
 python -m scripts.load_bullets --sample  # the fictional public sample
@@ -63,7 +63,7 @@ your owner token, which skips the public limits.
 | Runaway cost | `DAILY_BUDGET_USD` (default $0.50) of *measured* spend pauses public traffic until midnight PT; per-IP hourly limit; max-instances=1. Ceiling ≈ $15/month plus your own use. |
 | Wrong "not eligible" | Every verdict shows its quote, and the page says it's a second opinion. |
 
-Planning estimate at current prices (with the ReAct loop): about $0.02 per check and $0.006 per saved resume, so
+Measured on the 30-posting eval: $0.016 per check (planning estimate for a saved resume: $0.006), so
 a quiet month (≈10 checks/day) is about $5 and the hard ceiling is $15. Cloud Run, Firestore
 and Secret Manager stay inside their free tiers at these volumes. The biggest lever is output
 tokens: moving the verifier to Flash-Lite with LOW thinking cuts a check to roughly $0.011.
@@ -78,23 +78,57 @@ No visitor data is ever used. See `rl/README.md`.
 
 ## Evaluate
 
-Copy `eval/labels.example.jsonl` to `eval/labels.jsonl`, add one line per posting, put posting
-text in `eval/postings/`, then `python -m eval.run_eval`. Reports blocker recall/precision,
-postings with a missed blocker (the expensive failure), false blocks, soft-flag recall,
-verdict accuracy, p50/p95 latency, tokens and cost per request, and how many fit claims the
-grounding gate vs. the verifier rejected. Results are cached so re-scoring is free.
+Labels are written blind, before running Proofline, so the eval can't grade the model against itself.
+
+```bash
+python -m eval.label add google-fde-2027 --clipboard   # save a posting (or paste, then Ctrl-D)
+python -m eval.label                                   # label every unlabeled posting
+python -m eval.label status                            # check the set is balanced
+python -m eval.run_eval                                # run and score
+```
+
+Reports blocker recall/precision, postings with a missed blocker (the expensive failure), false
+blocks, soft-flag recall, verdict accuracy, p50/p95 latency, tokens and cost per request, and how
+many fit claims the grounding gate vs. the verifier rejected. Writes `eval/runs/results.md` with the
+table below and every miss. Results are cached, so re-scoring is free; `--fresh` after prompt changes.
 
 ## Results
 
-Evaluation on 30 hand-labeled postings is in progress; numbers will be added here once measured.
+30 real Summer 2027 internship and early-career postings (Google, Meta, Anthropic, OpenAI, Amazon,
+Jane Street, Waymo, robotics startups and others), checked against the owner's profile. Labels
+were drafted by a different model (Claude) than the one being tested, from the posting text
+alone and before any Proofline output was seen.
 
-| Metric | Value |
-|---|---|
-| Blocker recall (postings with a real blocker that was caught) | pending |
-| False blocks (eligible postings marked not eligible) | pending |
-| Fit claims rejected: grounding gate / verifier | pending |
-| Latency p50 / p95 | pending |
-| Cost per check | pending |
+| Metric | First run | After fix |
+|---|---|---|
+| Overall verdict accuracy (yes / no / check) | 25/30 (83%) | **29/30 (97%)** |
+| False blocks (eligible postings marked "not eligible") | 0/30 | **0/30** |
+| Soft-flag recall (warnings worth surfacing) | 84.6% | 84.6% |
+| Proposed resume matches rejected: grounding gate / verifier | 15 / 82 of 167 | 10 / 85 of 165 (58%) |
+| Latency p50 / p95 | 20.2 s / 32.8 s | 28.8 s / 80.5 s |
+| Measured cost per check | $0.0158 | **$0.0156–0.0158** |
+
+**What the first run found.** Four postings (three Anthropic, one Parallel) say "a field relevant to
+the role". The field-of-study rule only treated "related" as open-ended, so it warned on a
+requirement that isn't one, turning four "yes" verdicts into "check". The rule now accepts
+open-ended wording (related, relevant, equivalent, any) and has a regression test. Prompts were not
+changed between runs, so the second run isn't tuned to this set.
+
+**Remaining miss.** Jane Street's ML internship asks for "an undergraduate or PhD student". The
+extractor treated this as a description rather than an eligibility gate, so it returned "yes"
+where a December graduate heading into an MS should see "check".
+
+**Limits of this eval, stated plainly.**
+- *Blocker recall isn't measured yet.* None of these 30 postings hard-blocks this profile (open to
+  relocation, no sponsorship needed, every role accepts a BS), so the most important number has no
+  test cases. A set of postings with real blockers (PhD-only, other graduation windows, clearance) is next.
+- *Years of experience isn't an eligibility gate.* 9 of 30 postings ask for 2–3+ years. Proofline
+  scores this as fit, not eligibility, so those count as "yes" here.
+- *Rejected matches aren't graded.* 58% of proposed resume matches were rejected by the grounding
+  gate or the verifier. That shows the checks are active, not that every rejection was right;
+  grading them needs fit labels.
+- *Tail latency varies.* p95 rose from 33 s to 80 s between runs with no code change on the hot
+  path, consistent with model-side latency; the service timeout is 120 s.
 
 ## Roadmap
 

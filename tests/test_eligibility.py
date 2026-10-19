@@ -89,3 +89,17 @@ def test_grounded_tolerates_model_wrapping_but_not_new_words():
     for q in ["Built a Go service", "caches results in Redis ... Built a Python service",  # wrong order
               "Built a Python microservice", '""', "..."]:
         assert not grounded(q, line), q
+
+
+def test_open_field_wording_passes():
+    from proofline.eligibility import _degree_field, Profile
+    from proofline.schemas import Constraint
+    p = Profile(graduation="2026-12", degree_level="BS", fields=["Mathematics of Computation"],
+                willing_locations=["US"], open_to_relocation=True, needs_sponsorship=False)
+    mk = lambda q: Constraint(category="degree_field", kind="minimum", summary="field", degree_levels=[],
+                              locations=[], source_quote=q)
+    for q in ["A field relevant to the role as demonstrated through coursework, training, or professional experience",
+              "BS in Computer Science or equivalent practical experience",
+              "Bachelor's in Computer Science, Electrical Engineering, Robotics, or related field"]:
+        assert _degree_field(mk(q), p, None)[0] == "pass", q
+    assert _degree_field(mk("BS in Mechanical Engineering"), p, None)[0] == "warning"

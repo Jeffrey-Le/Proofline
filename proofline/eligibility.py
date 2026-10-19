@@ -161,9 +161,14 @@ def _degree_level(c, p, ex):
     return _fail(c), f"Accepts {', '.join(sorted(acc))}; you have {', '.join(sorted(mine))}."
 
 
+_OPEN_FIELD = re.compile(r"\b(related|relevant|equivalent|similar|any|no specific)\b")
+
+
 def _degree_field(c, p, ex):
     s = norm(c.summary + " " + c.source_quote)
-    if "related" in s or any(norm(f) in s for f in p.fields):
+    # Open-ended wording ("or a related field", "a field relevant to the role", "or equivalent
+    # experience", "any technical field") doesn't restrict the field, so it passes.
+    if _OPEN_FIELD.search(s) or any(norm(f) in s for f in p.fields):
         return "pass", "Your field of study fits the requirement."
     return "warning", f"Check whether {p.fields[0]} counts for this field requirement."
 

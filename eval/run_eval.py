@@ -40,7 +40,7 @@ async def run_all(labels, sleep, fresh):
         for i, lab in enumerate(labels):
             text = Path(lab["posting_path"]).read_text()
             key = hashlib.sha256(text.encode()).hexdigest()[:16]
-            if key in cache:
+            if key in cache and "error" not in cache[key]:  # errors are retried, not reused
                 out.append((lab, cache[key]))
                 continue
             try:
@@ -110,7 +110,38 @@ def main():
     results = asyncio.run(run_all(labels, a.sleep, a.fresh))
     s = score(results)
     (RUNS / "summary.json").write_text(json.dumps(s, indent=2))
+    (RUNS / "results.md").write_text(markdown(s, results))
     print(json.dumps(s, indent=2))
+    print(f"\nREADME table and misses written to {RUNS / 'results.md'}")
+
+
+def markdown(s: dict, results) -> str:
+    """The README Results table plus the misses to write a failure analysis from."""
+    sec = lambda ms: f"{ms / 1000:.1f} s" if ms is not None else "n/a"
+    c = s["fit_claims"]
+    has_block = sum(1 for lab, _ in results if lab.get("expected_blockers"))
+    caught = has_block - s["postings_with_missed_blocker"]
+    eligible = sum(1 for lab, rec in results if not lab.get("expected_blockers") and "error" not in rec)
+    cost = s["cost_per_request_usd_mean"]
+    rows = [
+        ("Postings scored", f"{s['postings_scored']} ({s['errors']} errors)"),
+        ("Blocker recall (postings with a real blocker that was caught)", f"{caught}/{has_block} postings · {s['blocker_recall']} of blockers"),
+        ("Blocker precision", s["blocker_precision"]),
+        ("False blocks (eligible postings marked not eligible)", f"{s['postings_with_false_blocker']}/{eligible}"),
+        ("Soft-flag recall", s["soft_flag_recall"]),
+        ("Overall verdict accuracy", s["eligible_verdict_accuracy"]),
+        ("Fit claims rejected: grounding gate / verifier", f"{c['grounding_rejected']} / {c['verifier_rejected']} of {c['proposed']} proposed"),
+        ("Latency p50 / p95", f"{sec(s['latency_ms_p50'])} / {sec(s['latency_ms_p95'])}"),
+        ("Cost per check (measured)", f"${cost:.4f}" if cost is not None else "n/a"),
+    ]
+    miss = [f"- missed blocker on `{pid}`: {', '.join(cats)}" for pid, cats in s["missed"]]
+    miss += [f"- false block on `{pid}`: {', '.join(cats)}" for pid, cats in s["false_blocks"]]
+    miss += [f"- verdict on `{lab['id']}`: said {rec['report']['eligible']}, label {lab.get('expected_eligible')}"
+             for lab, rec in results if "report" in rec and rec["report"]["eligible"] != lab.get("expected_eligible")]
+    miss += [f"- error on `{lab['id']}`: {rec['error'][:200]}" for lab, rec in results if "error" in rec]
+    out = ["| Metric | Value |", "|---|---|", *[f"| {k} | {v} |" for k, v in rows], "",
+           "## Misses (for the failure analysis)", "", *(miss or ["- none"])]
+    return "\n".join(out) + "\n"
 
 
 if __name__ == "__main__":
